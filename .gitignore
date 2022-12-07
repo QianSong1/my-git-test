@@ -1,0 +1,5 @@
+#pai chu all .log file
+*.log
+
+#pai chu all dir as below 
+jiaoben

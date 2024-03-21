@@ -16,3 +16,4 @@ protect main test
 protect main test
 protect main test
 protect main test
+protect main test

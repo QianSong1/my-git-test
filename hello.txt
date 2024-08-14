@@ -29,5 +29,5 @@ protect main test
 main分支保护测试
 dev开发2024哈哈哈
 
-dev 开发通过本地
+dev 开发通过本地term
 dev开发通过web

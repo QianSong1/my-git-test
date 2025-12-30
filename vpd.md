@@ -114,3 +114,140 @@ Thanks!
 翻倍后流量
 
 ![image-20251230153607758](img/image-20251230153607758.png) 
+
+
+
+## 搭建vpn
+
+SSH工具连接服务器
+
+- 名称：任意自定义
+- 主机：服务器的ip地址
+- 端口：基本都是22
+- 用户名：root
+- 密码：服务器的root密码
+
+### 系统升级组件安装
+
+```bash
+apt update -y && apt install -y curl && apt install -y socat
+```
+
+### Hysteria2 一键安装脚本（开源安全）
+
+```bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hysteria2-install/main/hysteria2-install-main/hy2/hysteria.sh && bash hysteria.sh
+```
+
+**输入“1”：安装 Hysteria 2**
+
+```bash
+#############################################################
+#                  Hysteria 2 一键安装脚本                  #
+#############################################################
+
+ 1. 安装 Hysteria 2
+ 2. 卸载 Hysteria 2
+ ------------------------------------------------------------
+ 3. 关闭、开启、重启 Hysteria 2
+ 4. 修改 Hysteria 2 配置
+ 5. 显示 Hysteria 2 配置文件
+ ------------------------------------------------------------
+ 0. 退出脚本
+
+请输入选项 [0-5]: 1
+```
+
+![image-20251230170315126](img/image-20251230170315126.png) 
+
+![image-20251230170337585](img/image-20251230170337585.png) 
+
+### 配置Hysteria 2协议
+
+⦁ 输入“1”：必应自签证书 （默认）
+⦁ 回车：设置 Hysteria 2 端口为随机端口
+⦁ 输入“1”：单端口 （默认）
+⦁ 回车：设置 Hysteria 2 密码为随机密码
+⦁ 设置Hysteria 2 的伪装网站地址：输入“www.bing.com”
+
+```bash
+aws.com
+amd.com
+bing.com
+go.microsoft.com
+snap.licdn.com
+devblogs.microsoft.com
+cdn.bizibly.com
+www.apple.com
+ts1.tc.mm.bing.net
+fpinit.itunes.apple.com
+catalog.gamepass.com
+gray-config-prod.api.arc-cdn.net
+apps.mzstatic.com
+tag.demandbase.com
+r.bing.com
+tag-logger.demandbase.com
+cdn-dynmedia-1.microsoft.com
+services.digitaleast.mobi
+gray.video-player.arcpublishing.com
+azure.microsoft.com
+beacon.gtv-pub.com
+```
+
+日志
+
+```bash
+Hysteria 2 安装成功！
+Hysteria 2 协议证书申请方式如下：
+
+ 1. 必应自签证书 （默认）
+ 2. Acme 脚本自动申请
+ 3. 自定义证书路径
+
+请输入选项 [1-3]: 1
+将使用必应自签证书作为 Hysteria 2 的节点证书
+设置 Hysteria 2 端口 [1-65535]（回车则随机分配端口）：
+将在 Hysteria 2 节点使用的端口是：11075
+Hysteria 2 端口使用模式如下：
+
+ 1. 单端口 （默认）
+ 2. 端口跳跃
+
+请输入选项 [1-2]: 1
+将继续使用单端口模式
+设置 Hysteria 2 密码（回车跳过为随机字符）：
+使用在 Hysteria 2 节点的密码为：db53d5f1
+请输入 Hysteria 2 的伪装网站地址 （去除https://） [默认首尔大学]：www.bing.com
+使用在 Hysteria 2 节点的伪装网站为：www.bing.com
+```
+
+![image-20251230170601908](img/image-20251230170601908.png) 
+
+### 保存Hysteria 2协议节点链接
+
+![image-20251230170704332](img/image-20251230170704332.png) 
+
+
+
+## 客户端配置
+
+- Windows（v2rayN）：https://github.com/2dust/v2rayN/releases （下载v2rayN-windows-64-SelfContained.zip版）
+- Android（v2rayNG）：https://github.com/2dust/v2rayNG/releases
+- Mac（v2rayN）：https://github.com/2dust/v2rayN/releases
+- IOS（shadowrocket）：https://apps.apple.com/app/shadowrocket/id932747118
+
+扫描二维码、或复制粘贴链接导入客户端
+
+
+
+## 如何查看更改配置
+
+还是输入安装代码，可以【修改配置】、【显示配置文件】等
+
+```bash
+wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hysteria2-install/main/hysteria2-install-main/hy2/hysteria.sh && bash hysteria.sh
+```
+
+![image-20251230170842114](img/image-20251230170842114.png) 
+
+郑重声明：请合理使用科学上网，用于学习、科研、外贸等，严格遵守当地相关规定！

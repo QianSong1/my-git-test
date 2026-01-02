@@ -256,9 +256,9 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hyster
 
 
 
-## 5.搭建vpn（推荐s-ui面板方式）
+## 4.搭建vpn（推荐s-ui面板方式）
 
-### 5.1 卸载旧版vpn
+### 4.1 卸载旧版vpn
 
 还是输入安装代码，可以卸载等
 
@@ -266,7 +266,7 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hyster
 wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hysteria2-install/main/hysteria2-install-main/hy2/hysteria.sh && bash hysteria.sh
 ```
 
-### 5.2 绑定域名防墙
+### 4.2 绑定域名防墙
 
 登录：https://dash.cloudflare.com/
 
@@ -282,7 +282,7 @@ wget -N --no-check-certificate https://raw.githubusercontent.com/flame1ce/hyster
 
 
 
-### 5.3 一键安装与卸载
+### 4.3 一键安装与卸载
 
 [官方文档](https://v2.hysteria.network/zh/docs/getting-started/Server-Installation-Script/)
 
@@ -436,7 +436,7 @@ rm -fr /usr/local/s-ui
 rm /usr/bin/s-ui
 ```
 
-### 5.4 服务端配置
+### 4.4 服务端配置
 
 http://your_ip:2095/app/
 
@@ -464,7 +464,7 @@ https://www.youtube.com/watch?v=6l01iAgKglY&t=10s
 
 
 
-### 5.5 开放端口
+### 4.5 开放端口
 
 ```bash
 #如果上方失败，开放端口试试
@@ -524,7 +524,7 @@ tcp         LISTEN       0            4096                            *:22      
 
 
 
-### 5.6 客户端 配置
+### 4.6 客户端 配置
 
 ```bash
 #电脑配置
@@ -566,7 +566,7 @@ SNI：your.domain.net  --你的域名，为空将和server一致，通常留空
 
 
 
-## 6.给面板和节点隧道访问
+## 5.给面板和节点隧道访问
 
 **作用：防止被扫描，封IP**
 
@@ -580,7 +580,7 @@ SNI：your.domain.net  --你的域名，为空将和server一致，通常留空
 
 
 
-### 6.1 创建s-ui节点
+### 5.1 创建s-ui节点
 
 创建无tls的节点，如 VLESS / Trojan / Vmess 等等协议
 
@@ -592,7 +592,7 @@ SNI：your.domain.net  --你的域名，为空将和server一致，通常留空
 
 
 
-### 6.1 端口知识
+### 5.2 端口知识
 
 **s-ui配置Cloudflare的CDN和TLS证书**
 **面板加CDN、节点加CDN配置Cloudflare的15年证书使用，或隧道代理都需要遵守，使用以下标准端口**
@@ -656,7 +656,7 @@ Please enter your selection [0-20]: 13
 
 
 
-### 6.2 关闭端口
+### 5.3 关闭端口
 
 ```bash
 #关闭所有暴露端口
@@ -731,7 +731,7 @@ tcp          LISTEN        0             128                           [::]:22  
 
 此时访问：http://your_global_ip:2095/app/ 是不能访问面板的
 
-### 6.3 ssh隧道访问面板
+### 5.4 ssh隧道访问面板
 
 Windows终端走ssh端口转发
 
@@ -739,7 +739,7 @@ Windows终端走ssh端口转发
 根据数据传输方向的不同，主要分为以下三种模式：
 
 1. **本地端口转发 (Local Port Forwarding)**
-  场景： 你在家里，想访问公司内网的一台数据库服务器，但数据库端口不对外开放，只有 SSH 服务器可以从外部访问。
+    场景： 你在家里，想访问公司内网的一台数据库服务器，但数据库端口不对外开放，只有 SSH 服务器可以从外部访问。
 
   >  * 原理： 在本地机器上监听一个端口，将发送到该端口的数据通过 SSH 隧道转发到远程主机的某个端口。
   >  * 命令格式：
@@ -748,7 +748,7 @@ Windows终端走ssh端口转发
   >    ssh -L 8080:192.168.1.50:3306 user@ssh-server.com
   >    这表示：当你访问本地的 localhost:8080 时，流量会通过 ssh-server.com 转发到内网 192.168.1.50 的 3306 端口。
 2. **远程端口转发 (Remote Port Forwarding)**
-  场景： 你在公司内部开发了一个网页，想让家里的朋友看看，但公司没有公网 IP。
+    场景： 你在公司内部开发了一个网页，想让家里的朋友看看，但公司没有公网 IP。
 
   >  * 原理： 在远程 SSH 服务器上监听一个端口，将发送到该端口的数据通过 SSH 隧道转发回本地机器的某个端口。
   >  * 命令格式：
@@ -757,7 +757,7 @@ Windows终端走ssh端口转发
   >    ssh -R 9000:localhost:80 user@public-server.com
   >    这表示：任何人访问 public-server.com:9000，流量都会被转发到你本地机器的 80 端口。
 3. **动态端口转发 (Dynamic Port Forwarding)**
-  场景： 你需要一个通用的代理服务器，想通过 SSH 服务器访问多个不同的外部网站，而不必为每个目标都设置转发。
+    场景： 你需要一个通用的代理服务器，想通过 SSH 服务器访问多个不同的外部网站，而不必为每个目标都设置转发。
 
   >  * 原理： SSH 会启动一个 SOCKS 代理服务器。流量不再固定转发到某个特定目标，而是根据应用层的需求动态决定去向。
   >  * 命令格式：
@@ -789,7 +789,7 @@ PS C:\Users\Fizz\Desktop> ssh -N -L 8080:localhost:2095 root@your-vps-ip
 
 访问 ：http://127.0.0.1:8080/app/ 即可开启s-ui面板
 
-### 6.4 配置C-F隧道
+### 5.5 配置C-F隧道
 
 登录：https://dash.cloudflare.com/
 
@@ -951,7 +951,7 @@ WantedBy=multi-user.target
 
 
 
-### 6.5 客户端测试
+### 5.6 客户端测试
 
 客户端粘贴订阅地址，把服务器主机改为隧道节点  **node1.xxx.xxx.org**
 
@@ -965,3 +965,196 @@ WantedBy=multi-user.target
 
 
 
+## 6.被封IP怎么连接vps
+
+### 6.1 前提条件
+
+如果你的vps服务器IP地址被封，大陆没法直接  ssh 连接管理
+
+你需要能够翻出去，clash , v2rayN , 寻找机场等等各种能让你出去的方式，海外云服务器也可以
+
+或者配置本教程 **5步骤** 的隧道技术节点，终极防失联，使用它来代理 ssh 连接管理被墙的 vps **[强烈推荐]**
+
+或者不跑路机场：[链接直达](https://mitce.net/aff.php?aff=26603)
+
+海外云服务器不用多说，连接它直接就能用它  ssh  跳转连接你被墙的vps
+
+**重点说一说如何：通过代理ssh连接被墙vps**
+
+我们用 [雷电模拟器](https://www.ldmnq.com) 安装任意代理客户端，打开代理clash , v2rayN，[NekoBox下载](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases/tag/1.4.0)，并使用 **[every-proxy](https://apkcombo.com/zh/every-proxy/com.gorillasoftware.everyproxy/download/phone-14.2-apk)** 软件，开放 `http` 代理端口 `8080` 以及 `socks5` 代理端口 `1080`
+
+至此，准备工作结束，接着看下一步............
+
+### 6.2 一般情况
+
+🌀**一般http协议代理用途**
+
+```bash
+#临时配置环境变量
+╰─ export http_proxy='http://192.168.1.150:8080'
+╰─ export https_proxy='http://192.168.1.150:8080'
+╰─ export all_proxy='socks5://192.168.1.150:1080'
+╰─ export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
+
+#永久配置环境变量
+╰─ vim ~/.zshrc   #shel是zsh的配置这个文件
+╰─ vim ~/.bashrc  #shel是bash的配置这个文件
+
+#添加如下4行到文件最后
+export http_proxy='http://192.168.1.150:8080'
+export https_proxy='http://192.168.1.150:8080'
+export all_proxy='socks5://192.168.1.150:1080'
+export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
+
+#或者创建函数，一劳永逸
+╰─ vim ~/.zshrc
+╰─ vim ~/.bashrc
+=================================================================================
+# set proxy on
+proxy_on() {
+
+    export http_proxy="http://192.168.1.150:8080"
+    export https_proxy="http://192.168.1.150:8080"
+    export all_proxy="socks5://192.168.1.150:1080"
+    export no_proxy="localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24"
+    echo "proxy on!"
+}
+
+# set proxy off
+proxy_off() {
+
+    unset http_proxy
+    unset https_proxy
+    unset all_proxy
+    unset no_proxy
+    echo "proxy off!"
+}
+=================================================================================
+
+#生效配置
+╰─ source ~/.zshrc
+╰─ source ~/.bashrc
+
+#开启代理
+proxy_on
+
+#关闭代理
+proxy_off
+
+#测试访问谷歌
+╰─ curl google.com
+<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
+<TITLE>301 Moved</TITLE></HEAD><BODY>
+<H1>301 Moved</H1>
+The document has moved
+<A HREF="http://www.google.com/">here</A>.
+</BODY></HTML>
+```
+
+### 6.3 特殊情况
+
+🌀**特殊用途**
+
+**ssh能不能通过代理连接被墙的IP地址呢？**
+
+可以，但**单纯设置环境变量（如 `all_proxy`）对 SSH 是无效的**。
+
+这是因为 SSH 客户端（`ssh` 命令）设计得非常底层且追求安全，它默认**不会读取** `all_proxy` 或 `http_proxy` 环境变量。要让 SSH 走代理，你需要通过 **`ProxyCommand`** 或者 **`ProxyJump`** 来实现。
+
+------
+
+**方法一：使用 `nc` (Netcat) 或 `ncat` (最推荐)**
+
+这是最通用的方法。通过 `ProxyCommand` 告诉 SSH：不要自己去连目标 IP，而是通过一个代理通道把流量传过去。
+
+1. 如果你的代理是 SOCKS5：
+
+```bash
+#安装ncat
+yum provides nc
+yum install nmap-ncat
+
+#通过代理ssh连接
+ssh -o "ProxyCommand=ncat --proxy-type socks5 --proxy 192.168.1.150:1080 %h %p" root@你的被墙IP
+```
+
+- `--proxy-type`：指定使用 SOCKS5 协议。
+- `--proxy 192.168.1.150:1080`：你的本地代理地址（模拟器地址）。
+- `%h %p`：自动替换为目标主机名和端口。
+
+2. 如果你的代理是 HTTP：
+
+```bash
+#安装ncat
+yum provides nc
+yum install nmap-ncat
+
+#通过代理ssh连接
+ssh -o "ProxyCommand=ncat --proxy-type http --proxy 192.168.1.150:8080 %h %p" root@你的被墙IP
+```
+
+- `--proxy-type`：指定使用 HTTP 协议。
+- `--proxy 192.168.1.150:8080`：你的本地代理地址（模拟器地址）。
+- `%h %p`：自动替换为目标主机名和端口。
+
+------
+
+**方法二：永久配置（一劳永逸）**
+
+如果你不想每次都输入那么长的命令，可以修改你本地的 SSH 配置文件 `~/.ssh/config`：
+
+1. 如果你的代理是 SOCKS5：
+
+```bash
+Host my-server
+    HostName 1.2.3.4  # 被墙的 IP
+    User root
+    Port 22
+    # 只要访问这个 Host，就自动走代理
+    ProxyCommand ncat --proxy-type socks5 --proxy 192.168.1.150:1080 %h %p
+```
+
+设置后，你只需要执行：`ssh my-server` 即可。
+
+2. 如果你的代理是 HTTP：
+
+```bash
+Host my-server
+    HostName 1.2.3.4  # 被墙的 IP
+    User root
+    Port 22
+    # 只要访问这个 Host，就自动走代理
+    ProxyCommand ncat --proxy-type http --proxy 192.168.1.150:8080 %h %p
+```
+
+设置后，你只需要执行：`ssh my-server` 即可。
+
+------
+
+**方法三：使用 `ProxyJump` (如果你有另一台没被墙的服务器，比如海外云服务器)**
+
+如果你没有本地代理工具，但有一台可以正常连接的“跳板机”（B服务器），可以通过它中转连接被墙的 A 服务器：
+
+```bash
+ssh -J userB@跳板机IP userA@被墙IP
+```
+
+- **原理**：流量先加密发送到跳板机，再由跳板机连接目标 IP。
+
+------
+
+常见问题排查
+
+| **现象**               | **原因**           | **解决方法**                                                 |
+| ---------------------- | ------------------ | ------------------------------------------------------------ |
+| **找不到 nc 命令**     | 系统没装 `netcat`  | 安装：`sudo apt install netcat-openbsd` 或 `yum install nmap-ncat` |
+| **Connection refused** | 代理没开启或端口错 | 检查 `ss -tunpl` 确认 1080 端口是否在监听。                  |
+| **nc 不支持 -X 参数**  | 用的是传统 nc      | 尝试使用 `ncat` (nmap 自带) 替代。                           |
+
+------
+
+为什么 `all_proxy` 没用？
+
+因为 SSH 使用的是自定义的加密二进制流，而 `all_proxy` 主要是为 HTTP/HTTPS 应用程序准备的。SSH 需要的是一个能透明转发原始 TCP 流的工具（如 `nc` 或 `ncat`）。
+
+**你目前电脑上运行的代理工具（如 Clash 或 V2Ray）提供的本地端口是 SOCKS5 还是 HTTP？** 告诉我端口类型，我可以给你提供最准确的配置。

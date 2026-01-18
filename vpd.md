@@ -1583,3 +1583,412 @@ ssh -fN host.my-vps-server.com
 
 完结🎊🎊.........
 
+
+
+## 7.服务器Linux怎么配置代理
+
+**在安卓手机上：** 我们用 [雷电模拟器](https://www.ldmnq.com) 安装任意代理客户端，打开代理clash , v2rayN，[NekoBox下载](https://github.com/MatsuriDayo/NekoBoxForAndroid/releases/tag/1.4.0)，并使用 **[every-proxy](https://apkcombo.com/zh/every-proxy/com.gorillasoftware.everyproxy/download/phone-14.2-apk)** 软件，开放 `http` 代理端口 `8080` 以及 `socks5` 代理端口 `1080`，就能实现本地电脑 + VMware虚拟机里边的Linux电脑都能代理上网，***这是娱乐性的*** ，只需要你有 Windows 电脑，很好实现。
+
+**在苹果手机上：** 可以使用 Shadowrocket (小火箭) —— 最推荐，App Store 地址： [Shadowrocket on App Store](https://apps.apple.com/us/app/shadowrocket/id932747118) ，仅在非中国区 App Store 提供。
+
+**而在Linux上（真实云服务器）：** 我们该怎么配置代理？，***这一般是工作性质的，比如docker镜像拉取，npm软件源加速，pip安装加速等等*** ，不可能在云服务器安装一个雷电模拟器，虚拟化再套一个虚拟化？这不现实。
+
+
+
+通常：在服务器，比如 AlmaLinux 上，我们可以手动安装代理客户端 [sing-box](https://github.com/SagerNet/sing-box/releases)，并针对 `Hysteria2` 进行内核加速优化，需要从安装、系统底层调优、配置三个维度入手，一旦配置好，服务器领域的其他机器只需要配置代理环境变量，IP地址指向该 AlmaLinux 的地址，就能使用代理上网。
+
+```bash
+# 我们假设服务器IP地址：192.168.1.150，当它配置好sing-box客户端，并启动，会自动监听8080代理端口
+
+# 其他服务器配置代理，即可流畅科学上网
+[root@almalinux ~]# export http_proxy='http://192.168.1.150:8080'
+[root@almalinux ~]# export https_proxy='http://192.168.1.150:8080'
+[root@almalinux ~]# export all_proxy='socks5://192.168.1.150:8080'
+[root@almalinux ~]# export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
+```
+
+------
+
+### 7.1 安装 sing-box
+
+**1.确认系统架构：**
+
+```bash
+# 通常输出 x86_64
+[root@almalinux ~]# uname -m
+```
+
+**2.下载并安装：**
+
+前往 [sing-box GitHub Releases](https://github.com/SagerNet/sing-box/releases) 获取指定版（以 1.12.17 为例）：
+
+```bash
+[root@almalinux ~]# cd /tmp
+[root@almalinux /tmp]# curl -Lo sing-box_1.12.17_linux_x86_64.rpm https://github.com/SagerNet/sing-box/releases/download/v1.12.17/sing-box_1.12.17_linux_x86_64.rpm
+[root@almalinux /tmp]# rpm -ivh sing-box_1.12.17_linux_x86_64.rpm
+```
+
+**注意：推荐就使用 `1.12.17` 这个版本，因为它更新太快了，可能导致本教程 `json` 配置文件一些选项被废弃，最终无法启动服务。**
+
+如果你执意要使用最新版，请自行分析报错日志，丢给AI，让它帮你修改JSON配置。
+
+------
+
+### 7.2 内核参数优化
+
+Hysteria2 基于 QUIC (UDP)，对内核的接收/发送缓冲区（Buffer）要求较高。
+
+**1.创建优化配置文件：**
+
+建议新建一个独立文件，不要直接改 `sysctl.conf`：
+
+```bash
+[root@almalinux /tmp]# sudo vim /etc/sysctl.d/sing-box.conf
+```
+
+**2.写入以下高性能参数**：
+
+```bash
+# 允许更大的 UDP 接收和发送缓冲区（对 Hysteria2 吞吐量至关重要）
+net.core.rmem_max = 16777216
+net.core.wmem_max = 16777216
+
+# 提高 TCP 并发能力（虽然 Hy2 走 UDP，但系统基础环境建议优化）
+net.ipv4.tcp_fastopen = 3
+
+# 提高最大文件句柄数
+fs.file-max = 1000000
+
+# 提高单进程的最大文件限制（配合 sing-box 使用）
+fs.nr_open = 1048576
+
+# 提高默认缓冲区
+net.core.rmem_default = 16777216
+net.core.wmem_default = 16777216
+
+# 启用 BBR 拥塞控制算法 (极大提升跨境传输速度)
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+```
+
+**3.应用配置**：
+
+```bash
+[root@almalinux /tmp]# sudo sysctl --system
+
+# 验证参数
+[root@almalinux /tmp]# sysctl -a|grep -E '(net.core.rmem_max =|net.core.wmem_max =|net.ipv4.tcp_fastopen =|fs.file-max|net.core.rmem_default =|net.core.wmem_default =|net.core.default_qdisc =|net.ipv4.tcp_congestion_control =|fs.nr_open =)'
+fs.file-max = 1000000
+fs.nr_open = 1048576
+net.core.default_qdisc = fq
+net.core.rmem_default = 16777216
+net.core.rmem_max = 16777216
+net.core.wmem_default = 16777216
+net.core.wmem_max = 16777216
+net.ipv4.tcp_congestion_control = bbr
+net.ipv4.tcp_fastopen = 3
+```
+
+------
+
+### 7.3 编写 sing-box 配置文件
+
+将你的 Hysteria2 链接转换为 `config.json`。 **注意：** 不要泄露你的链接 `IP地址`，密码等重要信息， **否则会被他人盗用蹭网** 。
+
+从 S-UI 面板复制链接后，你的链接通常如下： 
+
+```bash
+hysteria2://【密码】@【云服务器IP地址】:443?security=tls&insecure=1&sni=【伪装域名】&obfs=salamander&obfs-password=【混淆密码】&fastopen=0#hysteria2-19363
+```
+
+将它转为 `json` 配置，编辑 `/etc/sing-box/config.json`：
+
+```bash
+# 编辑配置，替换中文部分信息，改为你的真实的 Hysteria2 链接信息
+[root@almalinux /tmp]# vim /etc/sing-box/config.json
+{
+  "log": {
+    "level": "error",
+    "timestamp": true
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "proxy-dns",
+        "address": "https://8.8.8.8/dns-query"
+      },
+      {
+        "tag": "local-dns",
+        "address": "223.5.5.5"
+      }
+    ],
+    "rules": [
+      {
+        "rule_set": "geosite-cn",
+        "server": "local-dns"
+      },
+      {
+        "query_type": ["A", "AAAA"],
+        "server": "proxy-dns"
+      }
+    ],
+    "final": "proxy-dns",
+    "strategy": "prefer_ipv4"
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "::",
+      "listen_port": 8080,
+      "sniff": true,
+      "sniff_override_destination": true
+    }
+  ],
+  "outbounds": [
+    {
+      "type": "hysteria2",
+      "tag": "proxy",
+      "server": "你的云服务器IP地址",
+      "server_port": 443,
+      "password": "密码",
+      // 宽带上行 100m
+      "up_mbps": 100,
+      // 宽带下行 300m
+      "down_mbps": 300,
+      "tls": {
+        "enabled": true,
+        "server_name": "伪装域名",
+        "insecure": true
+      },
+      "obfs": {
+        "type": "salamander",
+        "password": "混淆密码"
+      }
+    },
+    {
+      "type": "direct",
+      "tag": "direct"
+    },
+    {
+      "type": "block",
+      "tag": "block-out"
+    }
+  ],
+  "route": {
+    "rules": [
+      {
+        "protocol": "dns",
+        "action": "hijack-dns"
+      },
+      // 1. 强制拦截这些域名（不管它解析出什么 IP）
+      {
+        "domain_suffix": [".bytedance.net", "ug.baidu.com"],
+        "action": "route",
+        "outbound": "block-out"
+      },
+      // 2. 强制国外核心域名走代理
+      {
+        "domain_keyword": [
+          "google",
+          "gstatic",
+          "youtube",
+          "facebook",
+          "twitter"
+        ],
+        "action": "route",
+        "outbound": "proxy"
+      },
+      // 3. 根据分流规则，绕过中国大陆网站
+      {
+        "rule_set": ["geoip-cn", "geosite-cn"],
+        "action": "route",
+        "outbound": "direct"
+      },
+      // 4. 把私有 IP 规则往后排，防止它误拦截了被污染的域名
+      {
+        "ip_is_private": true,
+        "action": "route",
+        "outbound": "direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "geosite-cn",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/sing-box/geosite-cn.srs"
+      },
+      {
+        "tag": "geoip-cn",
+        "type": "local",
+        "format": "binary",
+        "path": "/var/lib/sing-box/geoip-cn.srs"
+      }
+    ],
+    "final": "proxy",
+    "auto_detect_interface": true,
+    "default_domain_resolver": "local-dns"
+  }
+}
+```
+
+------
+
+### 7.4 配置大陆白名单
+
+**1.创建文件夹并赋权：**
+
+```bash
+[root@almalinux /tmp]# mkdir -p /var/lib/sing-box
+[root@almalinux /tmp]# chown -R sing-box:sing-box /var/lib/sing-box
+[root@almalinux /tmp]# ll /var/lib/sing-box -d
+drwxr-xr-x 2 sing-box sing-box 48 Jan 18 22:49 /var/lib/sing-box
+```
+
+**2.下载中国大陆网站规则文件**
+
+```bash
+# 通常这需要梯子才能下载成功，可以本地开梯子下载，然后上传到服务器 /var/lib/sing-box/ 目录底下
+[root@almalinux /tmp]# cd /var/lib/sing-box/
+[root@almalinux /var/lib/sing-box]# wget https://raw.githubusercontent.com/SagerNet/sing-geoip/rule-set/geoip-cn.srs
+[root@almalinux /var/lib/sing-box]# wget https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs
+
+# 修改权限
+[root@almalinux /var/lib/sing-box]# chown -R sing-box:sing-box ./
+[root@almalinux /var/lib/sing-box]# ll
+total 84
+-rw-r--r-- 1 sing-box sing-box 33743 Jan 18 22:48 geoip-cn.srs
+-rw-r--r-- 1 sing-box sing-box 48811 Jan 18 22:49 geosite-cn.srs
+```
+
+------
+
+### 7.5 管理服务
+
+**1.启动服务**：
+
+```bash
+# 检查配置文件格式，确保没有ERROR 等错误提示， WARN倒是是没关系
+[root@almalinux /tmp]# /usr/bin/sing-box check -c /etc/sing-box/config.json
+WARN[0000] legacy DNS servers is deprecated in sing-box 1.12.0 and will be removed in sing-box 1.14.0, checkout documentation for migration: https://sing-box.sagernet.org/migration/#migrate-to-new-dns-server-formats
+
+# 启动服务
+[root@almalinux /tmp]# sudo systemctl enable --now sing-box
+```
+
+**2.检查是否运行正常**：
+
+```bash
+# 查看状态
+[root@almalinux /tmp]# sudo systemctl status sing-box
+
+# 查看日志
+[root@almalinux /tmp]# journalctl -u sing-box.service -f
+
+# 如果日志报错，请丢给AI，调整JSON配置，然后重启服务
+[root@almalinux /tmp]# sudo systemctl restart sing-box
+
+# 如果一切没问题，应该正常监听8080端口
+[root@almalinux /tmp]# ss -tulnp |grep -E '(Send-Q|:8080)' | awk '
+BEGIN { fmt = "%-8s %-10s %-8s %-8s %-25s %-25s %-s\n" }
+NR==1 { printf fmt, $1, $2, $3, $4, "Local Address:Port", "Peer Address:Port", "Process"; next }
+{
+    # 合并第7列之后的所有内容，防止进程名被截断
+    process = ""; for(i=7; i<=NF; i++) process = process $i " "
+    printf fmt, $1, $2, $3, $4, $5, $6, process
+}'
+
+# 命令输出应该是这样
+Netid    State      Recv-Q   Send-Q   Local Address:Port        Peer Address:Port         Process
+tcp      LISTEN     0        4096     *:8080                    *:*                       users:(("sing-box",pid=1180,fd=5))
+
+# 测试代理（使用我们配置的 8080 端口），应该返回HTTP 200 状态码，表示代理成功
+[root@almalinux /tmp]# curl --proxy http://127.0.0.1:8080 -I https://www.google.com
+HTTP/1.1 200 Connection established
+
+HTTP/2 200
+content-type: text/html; charset=ISO-8859-1
+```
+
+------
+
+### 7.6 其它机器配置代理
+
+🌀**一般http协议代理用途**
+
+```bash
+#临时配置环境变量
+╰─ export http_proxy='http://192.168.1.150:8080'
+╰─ export https_proxy='http://192.168.1.150:8080'
+╰─ export all_proxy='socks5://192.168.1.150:1080'
+╰─ export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
+
+#永久配置环境变量
+╰─ vim ~/.zshrc   #shel是zsh的配置这个文件
+╰─ vim ~/.bashrc  #shel是bash的配置这个文件
+
+#添加如下4行到文件最后
+export http_proxy='http://192.168.1.150:8080'
+export https_proxy='http://192.168.1.150:8080'
+export all_proxy='socks5://192.168.1.150:1080'
+export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
+
+#或者创建函数，一劳永逸
+╰─ vim ~/.zshrc
+╰─ vim ~/.bashrc
+=================================================================================
+# set proxy on
+proxy_on() {
+
+    export http_proxy="http://192.168.1.150:8080"
+    export https_proxy="http://192.168.1.150:8080"
+    export all_proxy="socks5://192.168.1.150:1080"
+    export no_proxy="localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24"
+    echo "proxy on!"
+}
+
+# set proxy off
+proxy_off() {
+
+    unset http_proxy
+    unset https_proxy
+    unset all_proxy
+    unset no_proxy
+    echo "proxy off!"
+}
+=================================================================================
+
+#生效配置
+╰─ source ~/.zshrc
+╰─ source ~/.bashrc
+
+#开启代理
+proxy_on
+
+#关闭代理
+proxy_off
+
+#测试访问谷歌
+╰─ curl -I https://www.google.com
+<HTML><HEAD><meta http-equiv="content-type" content="text/html;charset=utf-8">
+<TITLE>301 Moved</TITLE></HEAD><BODY>
+<H1>301 Moved</H1>
+The document has moved
+<A HREF="http://www.google.com/">here</A>.
+</BODY></HTML>
+```
+
+🌀**特殊代理用途**
+
+请参见本教程【6.3】小节。
+
+------
+
+### 7.7 关键点提示
+
+- **BBR 加速**：AlmaLinux 默认内核支持 BBR。如果执行 `sysctl net.ipv4.tcp_congestion_control` 显示不是 `bbr`，上述参数会自动开启它。
+- **UDP 限制**：部分服务商会限制 UDP（QoS）。如果 Hy2 速度极慢，可能需要降低 `up_mbps` 和 `down_mbps` 或更改混淆方式。
+- **192.168.1.150**：请再次确认你的 sing-box 客户端是否真的运行在该地址的服务器，如果不是，请将该 IP 改为你真实的服务器私有 IP，不要照抄。
+
+**最后，享受~~~**

@@ -1918,10 +1918,12 @@ content-type: text/html; charset=ISO-8859-1
 🌀**一般http协议代理用途**
 
 ```bash
+#注意：此时http 和 socks5共用8080端口，不需要区分了，因为我们的JSON 配置是："mixed"
+
 #临时配置环境变量
 ╰─ export http_proxy='http://192.168.1.150:8080'
 ╰─ export https_proxy='http://192.168.1.150:8080'
-╰─ export all_proxy='socks5://192.168.1.150:1080'
+╰─ export all_proxy='socks5://192.168.1.150:8080'
 ╰─ export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
 
 #永久配置环境变量
@@ -1931,7 +1933,7 @@ content-type: text/html; charset=ISO-8859-1
 #添加如下4行到文件最后
 export http_proxy='http://192.168.1.150:8080'
 export https_proxy='http://192.168.1.150:8080'
-export all_proxy='socks5://192.168.1.150:1080'
+export all_proxy='socks5://192.168.1.150:8080'
 export no_proxy='localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24'
 
 #或者创建函数，一劳永逸
@@ -1943,7 +1945,7 @@ proxy_on() {
 
     export http_proxy="http://192.168.1.150:8080"
     export https_proxy="http://192.168.1.150:8080"
-    export all_proxy="socks5://192.168.1.150:1080"
+    export all_proxy="socks5://192.168.1.150:8080"
     export no_proxy="localhost,127.0.0.1,192.168.44.0/24,192.168.1.0/24"
     echo "proxy on!"
 }
